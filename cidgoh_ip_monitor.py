@@ -10,6 +10,8 @@ import socket
 import os.path
 import logging
 import configparser
+import inspect, os.path
+
 
 
 def sendMail(server_url, sender_email, sender_email_pass, message,subject, recipient_emails):
@@ -27,8 +29,11 @@ def sendMail(server_url, sender_email, sender_email_pass, message,subject, recip
 if __name__ =='__main__':    
 
     # load config file
+    filename = inspect.getframeinfo(inspect.currentframe()).filename
+    path     = os.path.dirname(os.path.abspath(filename))
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read(path+'/config.ini')
+    local_ip_file = path+'/.local_ip'
 
     # check current ip address
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -52,8 +57,8 @@ if __name__ =='__main__':
     sender_email_pass = config['EMAIL']['Sender_email_pass']
     recipient_emails =  config['EMAIL']['Recipient_emails']
 
-    if os.path.isfile('.local_ip'):
-        with open(".local_ip") as f:
+    if os.path.isfile(local_ip_file):
+        with open(local_ip_file) as f:
             lines = f.read()
             last_ip = lines.split('\n', 1)[0]
             if(current_ip == last_ip):
@@ -62,14 +67,14 @@ if __name__ =='__main__':
                 message = 'CIDGOH IP montior found IP address status change. The IP has been changed from '+last_ip+' to '+current_ip +" for "+ machine_name+"."
                 logger.warning(message)
                 sendMail(server_url, sender_email, sender_email_pass, message,subject, recipient_emails)
-                f = open(".local_ip", "w")
+                f = open(local_ip_file, "w")
                 f.write(current_ip)
                 f.close()
 
     else:
         message = 'CIDGOH IP monitor is running. The current IP for '+ machine_name + ' is '+current_ip+"."
         sendMail(server_url, sender_email, sender_email_pass, message,subject, recipient_emails)     
-        f = open(".local_ip", "w")
+        f = open(local_ip_file, "w")
         f.write(current_ip)
         f.close()
         logger.info(message)

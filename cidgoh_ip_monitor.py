@@ -42,7 +42,7 @@ if __name__ =='__main__':
 
 
     # set log file
-    logging.basicConfig(filename="logs.txt",
+    logging.basicConfig(filename=path+"/logs.txt",
                     format='%(asctime)s %(message)s',
                     filemode='a')
     logger = logging.getLogger()
